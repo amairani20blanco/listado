@@ -1,0 +1,125 @@
+package com.example.listado
+
+import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.view.MenuItem
+import android.view.View
+import android.widget.PopupMenu
+import android.widget.Toast
+import androidx.core.view.get
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.listado.databinding.ActivityMainBinding
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main_nuevo.*
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+    val data = ArrayList<Alumno>()
+
+    private lateinit var adapter : AlumnoAdapter
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        val recyclerview = findViewById<RecyclerView>(R.id.recyclerview)
+
+        // this creates a vertical layout Manager
+        recyclerview.layoutManager = LinearLayoutManager(this)
+
+        // ArrayList of class ItemsViewModel
+
+
+        //agregar elementos a la lista
+
+        data.add(Alumno("Mariana","20167895","cvelazquez10@ucol.mx","https://i.pinimg.com/236x/27/88/f8/2788f85d1523ab8a7bcb684906f71507.jpg"))
+        data.add(Alumno("Mario","20167098","Mneri1@ucol.mx","https://i.blogs.es/66b2a4/photo-1511367461989-f85a21fda167/840_560.jpeg"))
+        data.add(Alumno("Georgina","20189765","Ganguiano45@ucol.mx","https://i.pinimg.com/236x/27/88/f8/2788f85d1523ab8a7bcb684906f71507.jpg"))
+        data.add(Alumno("Juan","20156789","Jramos43@ucol.mx","https://i.blogs.es/66b2a4/photo-1511367461989-f85a21fda167/840_560.jpeg"))
+        data.add(Alumno("Angel","20175523","Arojas7@ucol.mx","https://i.blogs.es/66b2a4/photo-1511367461989-f85a21fda167/840_560.jpeg"))
+        data.add(Alumno("Raymundo","20172905","Cvelazquez10@ucol.mx","https://i.blogs.es/66b2a4/photo-1511367461989-f85a21fda167/840_560.jpeg"))
+        data.add(Alumno("Amairani","20167462","rmontelongo@ucol.mx","https://i.pinimg.com/236x/27/88/f8/2788f85d1523ab8a7bcb684906f71507.jpg"))
+
+        // This will pass the ArrayList to our Adapter
+        adapter = AlumnoAdapter(this,data)
+
+        // Setting the Adapter with the recyclerview
+        recyclerview.adapter = adapter
+        adapter.setOnItemClickListener(object : AlumnoAdapter.ClickListener {
+            override fun onItemClick(view: View, position: Int) {
+                //Toast.makeText(this@MainActivity, "Click en el item: ${position}", Toast.LENGTH_LONG).show()
+          itemOptionsMenu(position)
+            }
+        })
+
+        //V para recibir informacion
+        val parExtra = intent.extras
+        val msje =parExtra?.getString("mensaje")
+        val nombre =parExtra?.getString("nombre")
+        val cuenta =parExtra?.getString("cuenta")
+        val correo =parExtra?.getString("correo")
+        val imagen =parExtra?.getString("imagen")
+        if (msje=="nuevo"){
+            val insertIndex: Int = data.count()
+            data.add(
+                insertIndex,
+                Alumno(
+                    "${nombre}",
+                    "${cuenta}",
+                    "${correo}",
+                    "${imagen}"
+                )
+            )
+            adapter.notifyItemInserted(insertIndex)
+        }
+
+        //click en btn agregar
+        faButton.setOnClickListener {
+            val intento1 = Intent(this, MainActivityNuevo::class.java)
+            //intento1.putExtra("valor1", "Hola mundo");
+            startActivity(intento1)
+        }
+    }
+
+    private fun itemOptionsMenu(position: Int) {
+        val popupMenu = PopupMenu(this,binding.recyclerview[position].findViewById(R.id.textViewOptions))
+        popupMenu.inflate(R.menu.options_menu)
+//Para cambiarnos de activity
+        val intento2 = Intent(this,MainActivityNuevo::class.java)
+//Implementar el click en el item
+        popupMenu.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener{
+            override fun onMenuItemClick(item: MenuItem?): Boolean {
+                when(item?.itemId){
+                    R.id.borrar -> {
+                        val tmpAlum = data[position]
+                        data.remove(tmpAlum)
+                        adapter.notifyDataSetChanged()
+                        return true
+                    }
+                    R.id.editar ->{
+                        //Tomamos los datos del alumno, en la posición de la lista donde hicieron click
+                        val nombre = data[position].nombre
+                        val cuenta = data[position].cuenta
+                        val correo = data[position].correo
+                        val imagen = data[position].imagen
+                        //En position tengo el indice del elemento en la lista
+                        val idAlum: Int = position
+                        intento2.putExtra("mensaje","edit")
+                        intento2.putExtra("nombre","${nombre}")
+                        intento2.putExtra("cuenta","${cuenta}")
+                        intento2.putExtra("correo","${correo}")
+                        intento2.putExtra("imagen","${imagen}")
+                        //Pasamos por extras el idAlum para poder saber cual editar de la lista (ArrayList)
+                        intento2.putExtra("idA", idAlum)
+                        startActivity(intento2)
+                        return true
+                    }
+                }
+                return false
+            }
+        })
+        popupMenu.show()
+    }
+
+}
