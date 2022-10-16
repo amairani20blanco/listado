@@ -1,0 +1,33 @@
+package com.example.listado
+
+import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.example.listado.databinding.ActivityMainNuevoBinding
+
+class MainActivityNuevo : AppCompatActivity() {
+    private lateinit var binding: ActivityMainNuevoBinding
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainNuevoBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val parExtra = intent.extras
+        //var miVar = parExtra?.getString("valor1")
+        binding.btnGuardar.setOnClickListener {
+        //binding.txtDato.text= miVar.toString()
+        val txtNombre = binding.txtNombre.text
+        val txtCuenta = binding.txtCuenta.text
+        val txtCorreo = binding.txtCorreo.text
+        val txtImagen = binding.txtImagen.text
+            val intento2 = Intent(this,MainActivity::class.java)
+            intento2.putExtra("mensaje","nuevo")
+            intento2.putExtra("nombre","${txtNombre}")
+            intento2.putExtra("cuenta","${txtCuenta}")
+            intento2.putExtra("correo","${txtCorreo}")
+            intento2.putExtra("imagen","${txtImagen}")
+            startActivity(intento2)
+        }
+
+    }
+}
